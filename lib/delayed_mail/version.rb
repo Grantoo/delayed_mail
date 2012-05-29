@@ -1,0 +1,3 @@
+module DelayedMail
+  VERSION = "0.0.1"
+end
