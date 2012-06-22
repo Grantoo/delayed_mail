@@ -21,12 +21,12 @@ module Delayed
       method = self.class.method
       klass = ActionMailer::Base.delivery_methods[method]
       settings = ActionMailer::Base.send(:"#{method.to_s}_settings")
+      message = Mail::Message.new(encoded_message)
 
       begin
-        klass.new(settings).deliver!(Mail::Message.new(encoded_message))
+        klass.new(settings).deliver!(message)
       rescue Exception => e
-        ExceptionNotifier::Notifier.background_exception_notification(e, :data => {:message => encoded_message})
-        raise e
+        ExceptionNotifier::Notifier.background_exception_notification(e, :data => {:message => "Could not deliver mail message: #{message.subject} to #{message.to.inspect}"})
       end
     end
   end
