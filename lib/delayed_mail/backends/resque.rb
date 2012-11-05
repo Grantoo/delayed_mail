@@ -4,11 +4,13 @@ module DelayedMail
   module Backends
     module Resque
       def deliver!(mail)
-        ::Resque.enqueue_to('mail', self, mail.encoded)
+        ::Resque.enqueue_to('mail', DelayedMail::Backends::Resque::Job, mail.encoded)
       end
 
-      def perform(mail)
-        self.do_actual_delivery(mail)
+      class Job
+        def self.perform(mail)
+          DelayedMail::Delivery.do_actual_delivery(mail)
+        end
       end
     end
   end

@@ -45,5 +45,15 @@ describe ActionMailer::Base do
       copy = Mail::Message.new(Resque.peek('mail')['args'][0])
       original.should == copy
     end
+
+    it 'should be able to call the do_delivery method successfully' do
+      ActionMailer::Base.mail(:to => 'test@verticallabs.ca', :from => 'test@verticallabs.ca', :body => 'RSpec tests!').deliver
+
+      job = Resque.peek('mail')
+      message = Mail::Message.new(job['args'][0])
+      Mail::SMTP.any_instance.should_receive(:deliver!).and_return(true)
+
+      lambda { job['class'].constantize.perform(message) }.should_not raise_error
+    end
   end
 end
