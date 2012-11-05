@@ -12,8 +12,10 @@ module Delayed
 
         case queue_system
         when :delayed_job
+          require "delayed_mail/backends/delayed_job"
           include DelayedMail::Backends::DelayedJob
         when :resque
+          require "delayed_mail/backends/resque"
           include DelayedMail::Backends::Resque
         end
       end
