@@ -1,23 +1,28 @@
+require 'action_mailer'
+
 module Delayed
   class MailDelivery
     class << self
-      attr_accessor :method
+      attr_accessor :method, :queue_system
 
-      def setup(method)
+      def setup(method, queue_system)
         ActionMailer::Base.add_delivery_method :delayed, Delayed::MailDelivery
-        Delayed::MailDelivery.method = method
+        @method = method
+        @queue_system = queue_system
+
+        case queue_system
+        when :delayed_job
+          include DelayedMail::Backends::DelayedJob
+        when :resque
+          include DelayedMail::Backends::Resque
+        end
       end
     end
  
     def initialize(settings)
     end
  
-    def deliver!(mail)
-      options = Delayed::Job.new.respond_to?(:queue) ? {:queue => 'mail'} : {}
-      self.delay(options).pass_to_delivery_method(mail.encoded)
-    end
- 
-    def pass_to_delivery_method(encoded_message)
+    def do_actual_delivery(encoded_message)
       method = self.class.method
       klass = ActionMailer::Base.delivery_methods[method]
       settings = ActionMailer::Base.send(:"#{method.to_s}_settings")
