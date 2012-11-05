@@ -1,12 +1,12 @@
 require 'action_mailer'
 
-module Delayed
-  class MailDelivery
+module DelayedMail
+  class Delivery
     class << self
       attr_accessor :method, :queue_system
 
       def setup(method, queue_system)
-        ActionMailer::Base.add_delivery_method :delayed, Delayed::MailDelivery
+        ActionMailer::Base.add_delivery_method :delayed, DelayedMail::Delivery
         @method = method
         @queue_system = queue_system
 

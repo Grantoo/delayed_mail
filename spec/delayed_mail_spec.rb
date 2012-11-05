@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ActionMailer::Base do
   context 'DelayedJob' do
     before(:each) do
-      Delayed::MailDelivery.setup(:smtp, :delayed_job)
+      DelayedMail::Delivery.setup(:smtp, :delayed_job)
       ActionMailer::Base.delivery_method = :delayed
       Delayed::Job.destroy_all
     end
@@ -26,7 +26,7 @@ describe ActionMailer::Base do
 
   context 'Resque' do
     before(:each) do
-      Delayed::MailDelivery.setup(:smtp, :resque)
+      DelayedMail::Delivery.setup(:smtp, :resque)
       ActionMailer::Base.delivery_method = :delayed
       Resque.redis.del('queue:mail')
     end
